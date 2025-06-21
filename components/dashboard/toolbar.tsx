@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const Toolbar = () => {
-  return (
-    <div>Toolbar</div>
-  )
-}
+  return <div>Toolbar</div>;
+};
 
-export default Toolbar
+export default Toolbar;

@@ -1,14 +1,14 @@
-import React from 'react'
-import Card from './card'
-import Toolbar from './toolbar'
+import React from "react";
+import Card from "./card";
+import Toolbar from "./toolbar";
 
 const Dashboard = () => {
   return (
-    <div>
-      <Toolbar/>
-      <Card/>
+    <div className="flex flex-col items-center min-h-screen p-4">
+      <Toolbar />
+      <Card />
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
