@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { users, accounts, sessions, verification } from "@/server/db/schema";
 import { db } from "@/server/db"; // your drizzle instance
 import { env } from "@/utils/env";
+import { headers } from "next/headers";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -37,3 +38,25 @@ export const auth = betterAuth({
     },
   },
 });
+
+export const authenticate = async () => {
+  const session = await auth.api.getSession({ headers: headers() });
+  if (!session?.user || !session?.user?.email) {
+    return {
+      message: "Invalid Authentication",
+      auth: 401,
+    };
+  }
+  return {
+    user: {
+      id: session.user.id,
+      name: session.user.name,
+      message: null,
+      auth: 200,
+    },
+  };
+};
+
+export const getServerAuthSession = async () => {
+  return await auth.api.getSession({ headers: headers() });
+};
