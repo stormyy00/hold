@@ -48,12 +48,10 @@ export const authenticate = async () => {
     };
   }
   return {
-    user: {
-      id: session.user.id,
-      name: session.user.name,
-      message: null,
-      auth: 200,
-    },
+    uid: session.user.id,
+    user: session.user,
+    message: null,
+    auth: 200,
   };
 };
 

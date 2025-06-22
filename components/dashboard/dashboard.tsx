@@ -1,8 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Card from "./card";
 import Toolbar from "./toolbar";
+import {
+  AddLink,
+  deleteLink,
+  GetLinks,
+  updateLink,
+  updateLinkCount,
+} from "@/server/queries/getLinks";
+import { desc } from "drizzle-orm";
 
 const mock = [
   {
@@ -61,33 +69,83 @@ const mock = [
   },
 ];
 
+const addLink = async (
+  title: string,
+  description: string,
+  link: string,
+  domain: string,
+) => {
+  const { result, status, message } = await AddLink(
+    title,
+    description,
+    link,
+    domain,
+  );
+  if (status === 200) {
+    console.log("Link added successfully:", result);
+  } else {
+    console.error(message);
+  }
+};
+
 const Dashboard = () => {
   const [data, setData] = useState(mock);
   const [searchableItems, setSearch] = useState(mock);
-  const [link, setLink] = useState("");
-  const [title, setTitle] = useState("");
   const [filter, setFilter] = useState("all");
   const [checked, setChecked] = useState({});
   const [editableCard, setEditableCard] = useState(null);
 
-  console.log(link, title);
+  useEffect(() => {
+    getLinks();
+  }, []);
+  const getLinks = async () => {
+    const { result, status, message } = await GetLinks();
+    if (status === 200) {
+      console.log("Links retrieved successfully:", result);
+      setData(result);
+      setSearch(result);
+      console.log("Links retrieved successfully:", message);
+    } else {
+      console.error("Error retrieving links:");
+    }
+  };
 
-  const addLink = ({ title, link }) => {
+  const addLink = async ({ title, link }: { title: string; link: string }) => {
+    const domain = new URL(link).hostname.replace(/^www\./, "");
+    const description = "";
     const newItem = {
-      id: Date.now().toString(),
       title: title,
       link: link,
-      status: "Saved",
+      description: description,
+      domain: domain,
+      openedCount: 0,
     };
+
     const updatedData = [...data, newItem];
     setData(updatedData);
     setSearch(updatedData);
+
+    const { result, status, message } = await AddLink(
+      title,
+      description,
+      link,
+      domain,
+    );
+    if (status === 200) {
+      console.log("Link added successfully:", result);
+    } else {
+      console.error(message);
+    }
   };
 
-  const deleteCard = (id: string) => {
-    const updatedData = data.filter((item) => item.id !== id);
-    setData(updatedData);
-    setSearch(updatedData);
+  const deleteCard = async (id: string) => {
+    const { status, message } = await deleteLink(id);
+    if (status === 200) {
+      setData((prev) => prev.filter((item) => item.id !== id));
+      setSearch((prev) => prev.filter((item) => item.id !== id));
+    } else {
+      console.error(message);
+    }
   };
 
   // const bulkDeleteCards = () => {
@@ -98,6 +156,15 @@ const Dashboard = () => {
   //   setChecked({});
   // };
 
+  const updateCount = async (id: string, openedCount: number) => {
+    const { status, message } = await updateLinkCount(id, openedCount);
+    if (status === 200) {
+      console.log("Link updated successfully:", message);
+    } else {
+      console.error(message);
+    }
+  };
+
   const editCard = (id: string) => {
     const cardToEdit = data.find((item) => item.id === id);
     if (cardToEdit) {
@@ -105,16 +172,42 @@ const Dashboard = () => {
     }
   };
 
-  const onSave = (id: string | null, title?: string, link?: string) => {
+  const onSave = async (id: string | null, title?: string, link?: string) => {
     if (id === null) {
       setEditableCard(null);
       return;
     }
+
+    if (!title || !link) {
+      console.error("Title and link are required");
+      return;
+    }
+
     const updatedData = data.map((item) =>
       item.id === id ? { ...item, title, link } : item,
     );
-    setData(updatedData);
-    setSearch(updatedData);
+
+    const foundItem = updatedData.find((item) => item.id === id);
+    if (!foundItem) return;
+
+    const updatedDomain = new URL(link).hostname.replace(/^www\./, "");
+    const description = "";
+    const { status, message } = await updateLink(
+      id,
+      title,
+      description,
+      link,
+      updatedDomain,
+    );
+
+    if (status === 200) {
+      console.log("Link updated successfully:", message);
+    } else {
+      console.error(message);
+    }
+
+    setData(updatedData as typeof data);
+    setSearch(updatedData as typeof data);
     setEditableCard(null);
   };
 
@@ -130,26 +223,31 @@ const Dashboard = () => {
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 justify-items-center w-full max-w-7xl">
-        {searchableItems.map(({ id, title, link, status }, index) => (
-          <Card
-            id={id}
-            title={title}
-            link={link}
-            status={status}
-            onClick={() => {
-              setChecked({
-                ...checked,
-                [id]: !checked[id],
-              });
-            }}
-            onEdit={editCard}
-            onDelete={() => deleteCard(id)}
-            editableCard={editableCard}
-            onSave={onSave}
-            checked={checked[id] || false}
-            key={index}
-          />
-        ))}
+        {searchableItems.map(
+          ({ id, title, link, status, domain, openedCount }, index) => (
+            <Card
+              id={id}
+              title={title}
+              link={link}
+              status={status}
+              domain={domain}
+              openedCount={openedCount}
+              onClick={() => {
+                setChecked({
+                  ...checked,
+                  [id]: !checked[id],
+                });
+              }}
+              onEdit={editCard}
+              onDelete={() => deleteCard(id)}
+              editableCard={editableCard}
+              onSave={onSave}
+              checked={checked[id] || false}
+              onUpdateLinkCount={updateCount}
+              key={index}
+            />
+          ),
+        )}
       </div>
     </div>
   );

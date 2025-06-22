@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Eye, Trash } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
@@ -10,6 +10,8 @@ const Cards = ({
   id,
   title,
   link,
+  domain,
+  openedCount,
   status,
   checked,
   onClick,
@@ -17,17 +19,10 @@ const Cards = ({
   onDelete,
   editableCard,
   onSave,
+  onUpdateLinkCount,
 }: CardsProps) => {
   const [editTitle, setEditTitle] = useState(title);
   const [editLink, setEditLink] = useState(link);
-
-  const getDomain = (url: string) => {
-    try {
-      return new URL(url).hostname.replace(/^www\./, "");
-    } catch {
-      return null;
-    }
-  };
 
   const isEditing = editableCard && editableCard.id === id;
 
@@ -60,12 +55,9 @@ const Cards = ({
           <div className="flex items-center gap-2 flex-grow min-w-0">
             {link && (
               <img
-                src={`https://www.google.com/s2/favicons?domain=${getDomain(link)}`}
+                src={`https://www.google.com/s2/favicons?domain=${domain}`}
                 alt="favicon"
                 className="w-4 h-4 flex-shrink-0"
-                onError={(e) => {
-                  e.target.style.display = "none";
-                }}
               />
             )}
             {isEditing ? (
@@ -129,7 +121,7 @@ const Cards = ({
         </div>
       </CardHeader>
 
-      <CardContent className="p-0">
+      <CardContent className="flex justify-between p-0">
         {isEditing ? (
           <Input
             value={editLink}
@@ -142,15 +134,18 @@ const Cards = ({
           <div className="h-8 flex items-center">
             <Link
               href={link}
+              onClick={() => onUpdateLinkCount(id, openedCount)}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-blue-600 hover:text-blue-800 truncate block"
-              onClick={(e) => e.stopPropagation()}
             >
               {link}
             </Link>
           </div>
         )}
+        <div className="flex items-center text-xs gap-1 text-gray-500 mt-1">
+          <Eye size={16} /> <p>{openedCount}</p>
+        </div>
       </CardContent>
     </Card>
   );
