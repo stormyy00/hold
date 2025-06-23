@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { CardsProps } from "@/types";
+import TooltipComponent from "./tooltip";
 
 const Cards = ({
   id,
@@ -68,9 +69,15 @@ const Cards = ({
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
-              <span className="text-sm font-semibold text-gray-700 truncate">
+              <Link
+                href={link}
+                onClick={() => onUpdateLinkCount(id, openedCount)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold text-gray-700 truncate flex-grow min-w-0 hover:text-blue-500"
+              >
                 {title}
-              </span>
+              </Link>
             )}
           </div>
           <div className="flex gap-2 flex-shrink-0">
@@ -122,29 +129,34 @@ const Cards = ({
       </CardHeader>
 
       <CardContent className="flex justify-between p-0">
-        {isEditing ? (
-          <Input
-            value={editLink}
-            onChange={(e) => setEditLink(e.target.value)}
-            placeholder="https://example.com"
-            className="h-8 text-sm placeholder:text-gray-500"
-            onClick={(e) => e.stopPropagation()}
+        {
+          isEditing ? (
+            <Input
+              value={editLink}
+              onChange={(e) => setEditLink(e.target.value)}
+              placeholder="https://example.com"
+              className="h-8 text-sm placeholder:text-gray-500"
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : null
+          // <div className="h-8 flex items-center">
+          //   <Link
+          //     href={link}
+          //     onClick={() => onUpdateLinkCount(id, openedCount)}
+          //     target="_blank"
+          //     rel="noopener noreferrer"
+          //     className="text-sm text-blue-600 hover:text-blue-800 truncate block"
+          //   >
+          //     {link}
+          //   </Link>
+          // </div>
+        }
+        <div className="flex items-center justify-between text-xs gap-1 text-gray-500 mt-1 px-1">
+          <TooltipComponent
+            content="Link Opened"
+            icon={<Eye size={16} className="text-gray-500" />}
+            text={openedCount.toString()}
           />
-        ) : (
-          <div className="h-8 flex items-center">
-            <Link
-              href={link}
-              onClick={() => onUpdateLinkCount(id, openedCount)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:text-blue-800 truncate block"
-            >
-              {link}
-            </Link>
-          </div>
-        )}
-        <div className="flex items-center text-xs gap-1 text-gray-500 mt-1">
-          <Eye size={16} /> <p>{openedCount}</p>
         </div>
       </CardContent>
     </Card>

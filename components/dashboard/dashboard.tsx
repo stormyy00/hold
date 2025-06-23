@@ -225,9 +225,6 @@ const Dashboard = () => {
       item.id === id ? { ...item, title, link } : item,
     );
 
-    const foundItem = updatedData.find((item) => item.id === id);
-    if (!foundItem) return;
-
     const updatedDomain = new URL(link).hostname.replace(/^www\./, "");
     const description = "";
     const { status, message } = await updateLink(
@@ -240,17 +237,16 @@ const Dashboard = () => {
 
     if (status === 200) {
       console.log("Link updated successfully:", message);
+      setData(updatedData as typeof data);
+      setSearch(updatedData as typeof data);
+      setEditableCard(null);
     } else {
       console.error(message);
     }
-
-    setData(updatedData as typeof data);
-    setSearch(updatedData as typeof data);
-    setEditableCard(null);
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-6 w-full gap-6 bg-gray-50">
+    <div className="flex flex-col items-start min-h-screen p-6 w-full gap-6 bg-gray-50 max-w-7xl mx-auto">
       <div className="w-full max-w-7xl">
         <Toolbar
           data={data}
@@ -263,7 +259,7 @@ const Dashboard = () => {
       </div>
 
       <div className="flex flex-col items-start w-full max-w-7xl">
-        <h2 className="text-xl font-semibold">Folders</h2>
+        <div className="text-xl font-semibold">Folders</div>
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 w-full max-w-7xl mt-2">
           {folder.map(({ id, name }, index) => (
             <div className="flex  gap-4">
@@ -280,7 +276,7 @@ const Dashboard = () => {
           ))}
         </div>
       </div>
-
+      <div className="text-xl font-semibold">Folders</div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 justify-items-center w-full max-w-7xl">
         {searchableItems.map(
           ({ id, title, link, status, domain, openedCount }, index) => (
