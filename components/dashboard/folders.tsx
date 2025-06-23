@@ -1,7 +1,8 @@
 import { Folder as Fold, MoreVertical } from "lucide-react";
 import { Card } from "../ui/card";
+import { deleteFolder } from "@/server/queries/folder";
 
-const Folders = ({ title, onDelete, onEdit, OnSave }) => {
+const Folders = ({ id, title, setFolder, onDelete, onEdit, onSave }) => {
   return (
     <Card
       onClick={() => {}}
@@ -13,10 +14,11 @@ const Folders = ({ title, onDelete, onEdit, OnSave }) => {
           {title}
         </div>
         <MoreVertical
-          onClick={() => {
-            console.log("More options clicked for:", title);
+          onClick={async (e) => {
+            e.stopPropagation();
+            await deleteFolder(id);
+            setFolder((prev) => prev.filter((item) => item.id !== id));
           }}
-          className="cursor-pointer z-10"
           size={20}
         />
       </div>

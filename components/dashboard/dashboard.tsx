@@ -12,6 +12,8 @@ import {
 } from "@/server/queries/getLinks";
 import { LinkProps } from "@/types";
 import Folders from "./folders";
+import { getFolders } from "@/server/queries/folder";
+import { get } from "http";
 
 const mock = [
   {
@@ -117,9 +119,12 @@ const Dashboard = () => {
   const [filter, setFilter] = useState("all");
   const [checked, setChecked] = useState({});
   const [editableCard, setEditableCard] = useState(null);
+
   useEffect(() => {
     getLinks();
+    fetchFolders();
   }, []);
+
   const getLinks = async () => {
     const { result, status, message } = await GetLinks();
     if (status === 200 && result) {
@@ -129,6 +134,17 @@ const Dashboard = () => {
       console.log("Links retrieved successfully:", message);
     } else {
       console.error("Error retrieving links:");
+    }
+  };
+
+  const fetchFolders = async () => {
+    const { result, status, message } = await getFolders();
+    if (status === 200 && result) {
+      console.log("Folders retrieved successfully:", result);
+      setFolder(result);
+      console.log("Folders retrieved successfully:", message);
+    } else {
+      console.error("Error retrieving folders:");
     }
   };
 
@@ -249,17 +265,16 @@ const Dashboard = () => {
       <div className="flex flex-col items-start w-full max-w-7xl">
         <h2 className="text-xl font-semibold">Folders</h2>
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 w-full max-w-7xl mt-2">
-          {folder.map((folder, index) => (
+          {folder.map(({ id, name }, index) => (
             <div className="flex  gap-4">
               <Folders
                 key={index}
-                title={folder.name}
-                link={folder.link}
-                domain={folder.domain}
-                openedCount={folder.openedCount}
-                onClick={() => {
-                  console.log("Folder clicked:", folder.name);
-                }}
+                id={id}
+                title={name}
+                setFolder={setFolder}
+                // onClick={() => {
+                //   console.log("Folder clicked:", folder.name);
+                // }}
               />
             </div>
           ))}
