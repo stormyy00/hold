@@ -10,7 +10,8 @@ import {
   updateLink,
   updateLinkCount,
 } from "@/server/queries/getLinks";
-import { desc } from "drizzle-orm";
+import { LinkProps } from "@/types";
+import Folders from "./folders";
 
 const mock = [
   {
@@ -88,19 +89,40 @@ const addLink = async (
   }
 };
 
+const mockFolder = [
+  {
+    id: "1",
+    name: "Folder 1",
+    link: "https://example.com/1",
+    domain: "example.com",
+    openedCount: 0,
+    userId: "user1",
+    createdAt: "2023-01-01",
+  },
+  {
+    id: "2",
+    name: "Folder 2",
+    link: "https://example.com/2",
+    domain: "example.com",
+    openedCount: 0,
+    userId: "user1",
+    createdAt: "2023-01-02",
+  },
+];
+
 const Dashboard = () => {
-  const [data, setData] = useState(mock);
-  const [searchableItems, setSearch] = useState(mock);
+  const [data, setData] = useState<LinkProps[]>([]);
+  const [searchableItems, setSearch] = useState<LinkProps[]>([]);
+  const [folder, setFolder] = useState<typeof mockFolder>(mockFolder);
   const [filter, setFilter] = useState("all");
   const [checked, setChecked] = useState({});
   const [editableCard, setEditableCard] = useState(null);
-
   useEffect(() => {
     getLinks();
   }, []);
   const getLinks = async () => {
     const { result, status, message } = await GetLinks();
-    if (status === 200) {
+    if (status === 200 && result) {
       console.log("Links retrieved successfully:", result);
       setData(result);
       setSearch(result);
@@ -217,11 +239,33 @@ const Dashboard = () => {
         <Toolbar
           data={data}
           setSearch={setSearch}
+          setFolder={setFolder}
           filter={filter}
           setFilter={setFilter}
           onAddLink={addLink}
         />
       </div>
+
+      <div className="flex flex-col items-start w-full max-w-7xl">
+        <h2 className="text-xl font-semibold">Folders</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 w-full max-w-7xl mt-2">
+          {folder.map((folder, index) => (
+            <div className="flex  gap-4">
+              <Folders
+                key={index}
+                title={folder.name}
+                link={folder.link}
+                domain={folder.domain}
+                openedCount={folder.openedCount}
+                onClick={() => {
+                  console.log("Folder clicked:", folder.name);
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 justify-items-center w-full max-w-7xl">
         {searchableItems.map(
           ({ id, title, link, status, domain, openedCount }, index) => (

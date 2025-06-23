@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { FolderPlus, Plus, Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import DialogBox from "./dialog";
+import { AddFolder } from "@/server/queries/folder";
+import FolderDialog from "./folderDialog";
 
 interface ToolbarProps {
   data: any[];
   setSearch: (value: any[]) => void;
+  setFolder: (value: any[]) => void;
   filter: string;
   setFilter: (value: string) => void;
   onAddLink: (value: { link: string; title: string }) => void;
@@ -15,13 +18,20 @@ interface ToolbarProps {
 const Toolbar = ({
   data,
   setSearch,
+  setFolder,
   filter,
   setFilter,
   onAddLink,
 }: ToolbarProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [showDialog, setShowDialog] = useState(false);
-
+  const [popup, setPopup] = useState({
+    title: "",
+    text: "",
+    color: "",
+    visible: false,
+    button: "",
+  });
   const handleStatus = (status: string) => {
     setFilter(status);
     setSearch(
@@ -46,6 +56,26 @@ const Toolbar = ({
     );
   };
 
+  const createFolder = async (folderName: string) => {
+    const { status, message } = await AddFolder(folderName);
+    if (status === 200) {
+      console.log("Folder created successfully:", message);
+      setFolder((prev) => [...prev, { name: folderName }]);
+    } else {
+      console.error(message);
+    }
+  };
+
+  const confirmFolder = () => {
+    setPopup({
+      title: "Create Folder",
+      text: "Enter a name for the new folder.",
+      color: "blue",
+      visible: true,
+      button: "Create",
+    });
+  };
+
   return (
     <div className="flex flex-row items-center gap-2 w-11/12">
       <div className="relative w-full flex-grow">
@@ -59,12 +89,12 @@ const Toolbar = ({
           className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 text-sm"
         />
       </div>
-      <Button
-        variant="outline"
-        className="h-10 px-4 text-sm font-medium border-gray-300"
-        onClick={() => setShowDialog(true)}
-      >
+      <Button variant="outline" onClick={() => setShowDialog(true)}>
         <Plus size={16} />
+      </Button>
+      <Button onClick={confirmFolder} variant={"outline"}>
+        <FolderPlus size={16} />
+        <span>Create Folder</span>
       </Button>
       <div className="flex gap-2 flex-wrap w-full">
         {STATUSES.map(({ status, bg, text, border, label }) => (
@@ -85,6 +115,8 @@ const Toolbar = ({
           setShowDialog(false);
         }}
       />
+
+      <FolderDialog popup={popup} setPopup={setPopup} onCreate={createFolder} />
     </div>
   );
 };
