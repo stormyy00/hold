@@ -66,10 +66,10 @@ export const links = createTable(
   (table) => ({
     folderUserIdx: index("idx_links_folder_user").on(
       table.folderId,
-      table.userId
+      table.userId,
     ),
     userIdIdx: index("idx_links_user_id").on(table.userId),
-  })
+  }),
 );
 
 export const accounts = createTable(
@@ -111,9 +111,9 @@ export const accounts = createTable(
     userIdIdx: index("account_user_id_idx").on(account.userId),
     providerAccountUnique: unique("provider_account_unique").on(
       account.providerId,
-      account.accountId
+      account.accountId,
     ),
-  })
+  }),
 );
 
 // export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -155,7 +155,7 @@ export const sessions = createTable(
   },
   (session) => ({
     userIdIdx: index("session_user_id_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
