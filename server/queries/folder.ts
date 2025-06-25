@@ -2,7 +2,7 @@
 
 import { authenticate } from "@/utils/auth";
 import { db } from "../db";
-import { folders } from "../db/schema";
+import { folders, links } from "../db/schema";
 import { and, eq } from "drizzle-orm";
 
 export const AddFolder = async (name: string) => {
@@ -43,6 +43,46 @@ export const getFolders = async () => {
     message: "Folders retrieved",
     status: 200,
     result,
+  };
+};
+
+export const getFolderById = async (folderId: string) => {
+  const { uid, message, auth } = await authenticate();
+  if (auth !== 200 || !uid) {
+    return {
+      message: `Authentication Error: ${message}`,
+      status: auth,
+    };
+  }
+  const result = await db
+    .select()
+    .from(links)
+    .where(and(eq(links.folderId, folderId), eq(links.userId, uid)))
+    .execute();
+
+  return {
+    message: "Links for folder retrieved",
+    status: 200,
+    result,
+  };
+};
+
+export const moveLinkToFolder = async (linkId: string, folderId: string) => {
+  const { uid, message, auth } = await authenticate();
+  if (auth !== 200 || !uid) {
+    return {
+      message: `Authentication Error: ${message}`,
+      status: auth,
+    };
+  }
+  await db
+    .update(links)
+    .set({ folderId })
+    .where(and(eq(links.id, linkId), eq(links.userId, uid)))
+    .execute();
+  return {
+    message: "Link moved to folder",
+    status: 200,
   };
 };
 
