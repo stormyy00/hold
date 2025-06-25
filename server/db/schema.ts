@@ -47,20 +47,30 @@ export const folders = createTable("folders", {
 });
 
 // LINKS TABLE
-export const links = createTable("links", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => users.id),
-  folderId: uuid("folder_id").references(() => folders.id),
-  url: text("url").notNull(),
-  title: text("title"),
-  description: text("description"),
-  domain: text("domain"),
-  tags: text("tags"), // comma-separated or can switch to text[]
-  openedCount: integer("opened_count").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const links = createTable(
+  "links",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    folderId: uuid("folder_id").references(() => folders.id),
+    url: text("url").notNull(),
+    title: text("title"),
+    description: text("description"),
+    domain: text("domain"),
+    tags: text("tags"), // comma-separated or can switch to text[]
+    openedCount: integer("opened_count").default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    folderUserIdx: index("idx_links_folder_user").on(
+      table.folderId,
+      table.userId
+    ),
+    userIdIdx: index("idx_links_user_id").on(table.userId),
+  })
+);
 
 export const accounts = createTable(
   "account",
@@ -101,9 +111,9 @@ export const accounts = createTable(
     userIdIdx: index("account_user_id_idx").on(account.userId),
     providerAccountUnique: unique("provider_account_unique").on(
       account.providerId,
-      account.accountId,
+      account.accountId
     ),
-  }),
+  })
 );
 
 // export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -145,7 +155,7 @@ export const sessions = createTable(
   },
   (session) => ({
     userIdIdx: index("session_user_id_idx").on(session.userId),
-  }),
+  })
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
