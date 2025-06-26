@@ -1,5 +1,9 @@
 import FolderDashboard from "@/components/folders/folder-dashboard";
-import { getFolderById, getFolderByNameId } from "@/server/queries/folder";
+import {
+  getFolderById,
+  getFolderByNameId,
+  getFolders,
+} from "@/server/queries/folder";
 import React from "react";
 
 type PageProps = {
@@ -22,12 +26,14 @@ const page = async ({ params }: { params: PageProps }) => {
     console.error(message);
   }
   const res = await getFolderByNameId(id);
-
+  const folders = await getFolders();
+  console.log("Folders:", folders);
   return (
     <FolderDashboard
       content={result}
       title={res?.result?.[0]?.folderName || "Untitled Folder"}
       folderId={id}
+      folders={folders?.result}
     />
   );
 };

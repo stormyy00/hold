@@ -14,6 +14,7 @@ import { LinkProps } from "@/types";
 import Folders from "./folders";
 import { getFolders, moveLinkToFolder } from "@/server/queries/folder";
 import { Link } from "lucide-react";
+import Breadcrumbs from "../breadcrumb";
 
 interface FolderProps {
   id: string;

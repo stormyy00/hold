@@ -9,6 +9,7 @@ import {
   updateLinkCount,
 } from "@/server/queries/getLinks";
 import { Link } from "lucide-react";
+import Breadcrumbs from "../breadcrumb";
 
 type LinkItem = {
   id: string;
@@ -22,12 +23,14 @@ type FolderDashboardProps = {
   content: LinkItem[];
   title: string;
   folderId: string;
+  folders: { id: string; name: string }[];
 };
 
 const FolderDashboard = ({
   content,
   title,
   folderId,
+  folders,
 }: FolderDashboardProps) => {
   const [data, setData] = useState(content);
   const [search, setSearch] = useState(content);
@@ -81,6 +84,7 @@ const FolderDashboard = ({
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto p-6">
+        <Breadcrumbs folders={folders} page={title} showDropdown />
         <div className="mb-8">
           <div className="text-3xl font-bold text-gray-900 mb-2">{title}</div>
         </div>
