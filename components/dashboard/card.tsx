@@ -53,13 +53,13 @@ const Cards = ({
       }`}
       onClick={onClick}
     >
-      {status && STATUS_STYLES[status] && (
+      {/* {status && STATUS_STYLES[status] && (
         <div
           className={`text-xs font-semibold px-3 py-1.5 rounded-full w-fit mb-3 shadow-sm backdrop-blur-sm ${STATUS_STYLES[status].color}`}
         >
           {STATUS_STYLES[status].label}
         </div>
-      )}
+      )} */}
 
       <CardHeader className="flex items-center justify-between p-0 pb-3">
         <div className="flex gap-3 justify-between w-full items-center">

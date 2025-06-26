@@ -44,7 +44,7 @@ const Folders = ({ id, title, setFolder }: FolderProps) => {
   return (
     <Card
       onClick={() =>
-        router.push(`/folder/${id}-${slugify(title.toLowerCase())}`)
+        router.push(`/folders/${id}-${slugify(title.toLowerCase())}`)
       }
       className="group bg-white border border-gray-200/60 shadow-sm hover:shadow-xl hover:shadow-red-100/30 rounded-xl p-3 transition-all duration-300 cursor-pointer hover:border-red-200/70"
     >
