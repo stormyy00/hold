@@ -46,6 +46,28 @@ export const getFolders = async () => {
   };
 };
 
+export const getFolderByNameId = async (id: string) => {
+  const { uid, message, auth } = await authenticate();
+  if (auth !== 200 || !uid) {
+    return {
+      message: `Authentication Error: ${message}`,
+      status: auth,
+    };
+  }
+  const result = await db
+    .select({
+      folderName: folders.name,
+    })
+    .from(folders)
+    .where(and(eq(folders.id, id), eq(folders.userId, uid)))
+    .execute();
+  return {
+    message: "Folder retrieved",
+    status: 200,
+    result,
+  };
+};
+
 export const getFolderById = async (folderId: string) => {
   const { uid, message, auth } = await authenticate();
   if (auth !== 200 || !uid) {

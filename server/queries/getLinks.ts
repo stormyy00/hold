@@ -11,6 +11,7 @@ export const AddLink = async (
   description: string,
   link: string,
   domain: string,
+  folderId: string | null = null,
 ) => {
   const { uid, message, auth } = await authenticate();
   if (auth !== 200 || !uid) {
@@ -24,7 +25,7 @@ export const AddLink = async (
     .insert(links)
     .values({
       userId: uid,
-      folderId: null,
+      folderId,
       title,
       description,
       url: link,
