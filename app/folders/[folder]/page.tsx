@@ -17,9 +17,6 @@ const page = async ({ params }: { params: PageProps }) => {
   const id = parts.slice(0, 5).join("-");
   const folderSlug = parts.slice(5).join("-");
 
-  console.log(id);
-  console.log(folderSlug);
-
   const { result, status, message } = await getFolderById(id);
   if (status === 200) {
   } else {
@@ -27,7 +24,7 @@ const page = async ({ params }: { params: PageProps }) => {
   }
   const res = await getFolderByNameId(id);
   const folders = await getFolders();
-  console.log("Folders:", folders);
+
   return (
     <FolderDashboard
       content={result}

@@ -3,6 +3,7 @@ import { type ErrorContext } from "@better-fetch/fetch";
 import { authClient } from "@/utils/client";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Navigation = () => {
   const router = useRouter();
@@ -13,11 +14,11 @@ const Navigation = () => {
     await authClient.signIn.social(
       {
         provider: "google",
+        callbackURL: "/dashboard",
       },
       {
         onSuccess: async () => {
           router.refresh();
-          // router.push("/");
         },
         onError: (ctx: ErrorContext) => {
           alert({
@@ -33,13 +34,13 @@ const Navigation = () => {
   return (
     <div className="sticky left-0 right-0 top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-red-200/50 py-5 shadow-lg shadow-red-100/30">
       <div className="mx-auto flex items-center justify-between px-6 max-w-7xl">
-        <div className="flex items-center gap-2">
+        <Link href={"/"} className="flex items-center gap-2">
           <span className="text-3xl font-extrabold tracking-wide drop-shadow-sm">
             <span className="bg-gradient-to-r from-red-500 via-red-400 to-red-600 bg-clip-text text-transparent hover:from-red-400 hover:via-red-500 hover:to-red-600 transition-all duration-300">
               Hold
             </span>
           </span>
-        </div>
+        </Link>
 
         {session ? (
           <div className="flex items-center gap-4">
