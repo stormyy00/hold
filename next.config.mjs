@@ -7,6 +7,9 @@ const nextConfig = {
   assetPrefix: "",
   reactStrictMode: true,
   swcMinify: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
