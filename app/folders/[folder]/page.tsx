@@ -15,7 +15,6 @@ const page = async ({ params }: { params: PageProps }) => {
 
   const parts = paramValue.split("-");
   const id = parts.slice(0, 5).join("-");
-  const folderSlug = parts.slice(5).join("-");
 
   const { result, status, message } = await getFolderById(id);
   if (status === 200) {
