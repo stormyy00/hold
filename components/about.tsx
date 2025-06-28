@@ -12,7 +12,7 @@ const About = () => {
         <div className="w-32 h-32 bg-gradient-to-br from-red-100 to-red-200 rounded-full opacity-15" />
       </div>
 
-      <Card className="relative max-w-6xl mx-auto px-6 p-4 md:p-8 bg-white/90 backdrop-blur-sm rounded-2xl border border-red-200/50 shadow-lg shadow-red-100/30">
+      <Card className="relative max-w-7xl mx-auto px-6 p-4 md:p-8 bg-white/90 backdrop-blur-sm rounded-2xl border border-red-200/50 shadow-lg shadow-red-100/30">
         <div className="text-center mb-16">
           <div className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">
             <span className="bg-gradient-to-r from-red-500 via-red-400 to-red-600 bg-clip-text text-transparent">
