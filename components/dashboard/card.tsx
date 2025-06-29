@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Edit, Eye, Trash, FolderArchive } from "lucide-react";
+import { Edit, Eye, Trash, FolderArchive, FolderTree } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
@@ -18,7 +18,8 @@ const Cards = ({
   link,
   domain,
   openedCount,
-  status,
+  folderName,
+  folderId,
   folders,
   checked,
   onClick,
@@ -46,20 +47,24 @@ const Cards = ({
 
   return (
     <Card
-      className={`group w-full max-w-sm bg-white border border-gray-200/60 shadow-sm hover:shadow-xl hover:shadow-red-100/30 rounded-xl p-4 transition-all duration-300 cursor-pointer hover:border-red-200/70 hover:-translate-y-1 ${
+      className={`group w-full max-w-sm bg-white border border-gray-200/60 shadow-sm hover:shadow-lg hover:shadow-red-100/20 rounded-lg p-3 transition-all duration-300 cursor-pointer hover:border-red-200/70 hover:-translate-y-0.5 relative ${
         checked
           ? "ring-2 ring-red-400 bg-gradient-to-br from-red-50/80 to-red-100/40 border-red-300/50 shadow-lg shadow-red-200/30"
           : ""
-      }`}
+      } ${folderId ? "hover:ring-[.5px] hover:ring-red-300/50" : ""}`}
       onClick={onClick}
     >
-      {/* {status && STATUS_STYLES[status] && (
-        <div
-          className={`text-xs font-semibold px-3 py-1.5 rounded-full w-fit mb-3 shadow-sm backdrop-blur-sm ${STATUS_STYLES[status].color}`}
-        >
-          {STATUS_STYLES[status].label}
+      {folderId && (
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-400 to-red-600 rounded-l-lg opacity-30 group-hover:opacity-100 transition-opacity duration-300" />
+      )}
+      {folderId && (
+        <div className="absolute -top-3 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
+          <div className="flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-red-500 text-white shadow-lg backdrop-blur-sm">
+            <FolderTree size={12} className="mr-1" />
+            <span className="truncate max-w-16">{folderName}</span>
+          </div>
         </div>
-      )} */}
+      )}
 
       <CardHeader className="flex items-center justify-between p-0 pb-3">
         <div className="flex gap-3 justify-between w-full items-center">
@@ -188,7 +193,18 @@ const Cards = ({
 
           {domain && !isEditing && (
             <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md font-medium">
-              {domain}
+              <TooltipComponent
+                content={domain}
+                icon={""}
+                text={
+                  domain.length > 9
+                    ? domain.endsWith(".com")
+                      ? `${domain.substring(0, 12)}...com`
+                      : `${domain.substring(0, 12)}...${domain.slice(-3)}`
+                    : domain
+                }
+                copy
+              />
             </div>
           )}
         </div>

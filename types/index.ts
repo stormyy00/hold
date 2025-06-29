@@ -1,8 +1,9 @@
 export type LinkProps = {
   id: string;
   title: string;
-  folderId: string;
+  folderId?: string | null;
   link: string;
+  description?: string;
   domain: string;
   openedCount: number;
 };
@@ -26,7 +27,9 @@ export interface CardsProps {
   link: string;
   domain: string;
   openedCount: number;
-  status?: string;
+  folderName?: string;
+  folderId?: string;
+  folders?: folderProps[];
   checked?: boolean;
   onClick?: () => void;
   onEdit: (id: string) => void;
@@ -34,4 +37,5 @@ export interface CardsProps {
   editableCard?: EditableCardType | null;
   onSave: (id: string | null, title?: string, link?: string) => void;
   onUpdateLinkCount: (id: string, count: number) => void;
+  onMoveToFolder?: (id: string, folderId: string) => void;
 }

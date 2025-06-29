@@ -94,7 +94,6 @@ const Dashboard = () => {
         description,
         domain,
         openedCount: 0,
-        status: "Saved",
       };
 
       const updatedData = [...data, newItem];
@@ -315,13 +314,14 @@ const Dashboard = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {searchableItems.map(
-              ({ id, title, link, status, domain, openedCount }, index) => (
+              ({ id, folderId, title, link, domain, openedCount }, index) => (
                 <Card
                   key={index}
                   id={id}
+                  folderName={folders.find((f) => f.id === folderId)?.name}
+                  folderId={folderId}
                   title={title}
                   link={link}
-                  status={status}
                   domain={domain}
                   openedCount={openedCount}
                   onClick={() => handleCardCheck(id)}

@@ -4,15 +4,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Copy } from "lucide-react";
 import { ReactNode } from "react";
 
 type TooltipComponentProps = {
   content: string;
   icon: ReactNode;
   text: string;
+  copy?: boolean;
 };
 
-const TooltipComponent = ({ content, icon, text }: TooltipComponentProps) => {
+const TooltipComponent = ({
+  content,
+  icon,
+  text,
+  copy,
+}: TooltipComponentProps) => {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={100}>
@@ -20,7 +27,18 @@ const TooltipComponent = ({ content, icon, text }: TooltipComponentProps) => {
           {icon} {text}
         </TooltipTrigger>
         <TooltipContent>
-          <p>{content}</p>
+          <p
+            className={`flex items-center gap-1 ${copy ? "cursor-pointer hover:opacity-70" : ""}`}
+            onClick={() => copy && navigator.clipboard.writeText(content)}
+          >
+            {content}{" "}
+            {copy && (
+              <Copy
+                className="cursor-pointer hover:text-white/80 transition-colors duration-300"
+                size={10}
+              />
+            )}
+          </p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

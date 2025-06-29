@@ -68,9 +68,10 @@ export const GetLinks = async () => {
   return {
     message: "Links retrieved",
     status: 200,
-    result: result.map(({ id, title, url, domain, openedCount }) => {
+    result: result.map(({ id, folderId, title, url, domain, openedCount }) => {
       return {
         id,
+        folderId,
         title,
         link: url,
         domain,
