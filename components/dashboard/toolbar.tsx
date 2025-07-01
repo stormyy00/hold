@@ -5,11 +5,12 @@ import { Button } from "../ui/button";
 import DialogBox from "./dialog";
 import { AddFolder } from "@/server/queries/folder";
 import FolderDialog from "./folderDialog";
+import { folderProps, LinkProps } from "@/types";
 
 interface ToolbarProps {
-  data: any[];
-  setSearch: (value: any[]) => void;
-  setFolder: (value: any[]) => void;
+  data: LinkProps[];
+  setSearch: (value: LinkProps[]) => void;
+  setFolder: (value: folderProps[]) => void;
   filter: string;
   setFilter: (value: string) => void;
   onAddLink: (value: { link: string; title: string }) => void;

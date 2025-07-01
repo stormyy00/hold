@@ -1,7 +1,8 @@
 "use client";
+
 import Link from "next/link";
-import { usePathname, useParams } from "next/navigation";
-import { Folder, SlashIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Folder } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,

@@ -148,7 +148,7 @@ const Dashboard = () => {
 
   const updateCount = async (id: string, openedCount: number) => {
     try {
-      const { status, message } = await updateLinkCount(id, openedCount);
+      const { status, message } = await updateLinkCount(id);
       if (status === 200) {
         console.log("Link count updated successfully");
         const updatedData = data.map((item) =>
@@ -243,14 +243,14 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-4">
         <Breadcrumbs folders={[]} page="Dashboard" />
         {/* <div className="mb-8">
           <div className="text-3xl font-bold text-gray-900 mb-2">Dashboard</div>
           <p className="text-gray-600">Manage your links and folders</p>
         </div> */}
 
-        <div className="mb-8 bg-white/95 backdrop-blur-md border border-red-200/50 rounded-xl shadow-lg shadow-red-100/30 p-6">
+        <div className="mt-4 mb-8 bg-white/95 backdrop-blur-md border border-red-200/50 rounded-xl shadow-lg shadow-red-100/30 p-6">
           <Toolbar
             data={data}
             setSearch={setSearch}

@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import hold from "../public/holdinglink.png";
 import Image from "next/image";
 import Showcard from "./showcard";
+import { signIn } from "@/utils/signin";
 
 const Landing = () => {
   return (
@@ -29,7 +30,10 @@ const Landing = () => {
             links. Transform your digital chaos into organized productivity.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-end items-center">
-            <button className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold px-8 py-4 rounded-xl border border-red-300/40 shadow-lg shadow-red-200/50 transition-all duration-300 hover:shadow-red-300/60 hover:scale-105 flex items-center gap-2 text-lg">
+            <button
+              onClick={signIn}
+              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold px-8 py-4 rounded-xl border border-red-300/40 shadow-lg shadow-red-200/50 transition-all duration-300 hover:shadow-red-300/60 hover:scale-105 flex items-center gap-2 text-lg"
+            >
               Get Holding
               <ArrowRight className="w-5 h-5" />
             </button>

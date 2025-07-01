@@ -1,35 +1,16 @@
 "use client";
-import { type ErrorContext } from "@better-fetch/fetch";
+
 import { authClient } from "@/utils/client";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signIn } from "@/utils/signin";
+import { useRouter } from "next/navigation";
 
 const Navigation = () => {
-  const router = useRouter();
   const { data: session } = authClient.useSession();
   console.log("Session data:", session);
 
-  const signIn = async () => {
-    await authClient.signIn.social(
-      {
-        provider: "google",
-        callbackURL: "/dashboard",
-      },
-      {
-        onSuccess: async () => {
-          router.refresh();
-        },
-        onError: (ctx: ErrorContext) => {
-          alert({
-            title: "Something went wrong",
-            description: ctx.error.message ?? "Something went wrong.",
-            variant: "destructive",
-          });
-        },
-      },
-    );
-  };
+  const router = useRouter();
 
   return (
     <div className="sticky left-0 right-0 top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md border-b border-red-200/50 py-5 shadow-lg shadow-red-100/30">
@@ -54,7 +35,15 @@ const Navigation = () => {
             )}
             <Button
               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold px-6 py-2 rounded-xl border border-red-300/40 shadow-lg shadow-red-200/50 transition-all duration-300 hover:shadow-red-300/60 hover:scale-105"
-              onClick={() => authClient.signOut()}
+              onClick={() =>
+                authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push("/");
+                    },
+                  },
+                })
+              }
             >
               Sign Out
             </Button>
