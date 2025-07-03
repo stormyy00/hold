@@ -3,13 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Card from "./card";
 import Toolbar from "./toolbar";
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+// import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import Folders from "./folders";
 import { Grid2x2Icon, Link } from "lucide-react";
 import Breadcrumbs from "../breadcrumb";
-import { COLUMNS } from "@/data/columns";
+// import { COLUMNS } from "@/data/columns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import LinkTable from "./table";
+// import LinkTable from "./table";
 import { useFolders, useLinks } from "@/server/actions/links";
 import {
   useAddLinkMutation,
@@ -73,11 +73,11 @@ const Dashboard = () => {
     );
   }, [debouncedSearch, linksData]);
 
-  const table = useReactTable({
-    data: searchableItems,
-    columns: COLUMNS,
-    getCoreRowModel: getCoreRowModel(),
-  });
+  // const table = useReactTable({
+  //   data: searchableItems,
+  //   columns: COLUMNS,
+  //   getCoreRowModel: getCoreRowModel(),
+  // });
 
   // useEffect(() => {
   //   if (foldersdata) {
@@ -363,13 +363,13 @@ const Dashboard = () => {
                   )}
                 </div>
               </TabsContent>
-              <TabsContent value="list">
+              {/* <TabsContent value="list">
                 <LinkTable
                   table={table}
                   isLoading={isLoading}
                   emptyMessage="No links found. Add your first link to get started!"
                 />
-              </TabsContent>
+              </TabsContent> */}
             </>
           )}
         </Tabs>
