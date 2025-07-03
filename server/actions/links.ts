@@ -16,12 +16,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { GetLinks } from "@/server/queries/getLinks";
-import { getFolders } from "../queries/folder";
+import { getFolderById, getFolders } from "../queries/folder";
 
-export const useLinks = () => {
+export const useLinks = (folderId?: string) => {
   return useQuery({
-    queryKey: ["links"],
-    queryFn: async () => await GetLinks(),
+    queryKey: ["links", folderId ?? "all"],
+    queryFn: async () => {
+      return folderId ? await getFolderById(folderId) : await GetLinks();
+    },
     select: (data) => data.result,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5, // 5 minutes

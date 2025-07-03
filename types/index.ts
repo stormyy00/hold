@@ -24,7 +24,7 @@ export type EditableCardType = {
 export interface CardsProps {
   id: string;
   title: string;
-  link: string;
+  url: string;
   domain: string;
   openedCount: number;
   folderName?: string;

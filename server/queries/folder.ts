@@ -86,7 +86,16 @@ export const getFolderById = async (folderId: string) => {
   return {
     message: "Links for folder retrieved",
     status: 200,
-    result,
+    result: result.map(({ id, folderId, title, url, domain, openedCount }) => {
+      return {
+        id,
+        folderId,
+        title,
+        url,
+        domain,
+        openedCount,
+      };
+    }),
   };
 };
 

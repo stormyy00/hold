@@ -9,7 +9,7 @@ import { and, asc, eq, sql } from "drizzle-orm";
 export const AddLink = async (
   title: string,
   description: string,
-  link: string,
+  url: string,
   domain: string,
   folderId: string | null = null,
 ) => {
@@ -28,7 +28,7 @@ export const AddLink = async (
       folderId,
       title,
       description,
-      url: link,
+      url,
       domain,
     })
     .returning();
@@ -40,7 +40,7 @@ export const AddLink = async (
       {
         id: result.id,
         title: result.title,
-        link: result.url,
+        url: result.url,
         domain: result.domain,
         openedCount: result.openedCount,
       },
@@ -70,7 +70,7 @@ export const GetLinks = async () => {
         id,
         folderId,
         title,
-        link: url,
+        url,
         domain,
         openedCount,
       };
@@ -83,7 +83,7 @@ export const updateLink = async (
   id: string,
   title: string,
   description: string,
-  link: string,
+  url: string,
   domain: string,
 ) => {
   const { uid, message, auth } = await authenticate();
@@ -99,7 +99,7 @@ export const updateLink = async (
     .set({
       title,
       description,
-      url: link,
+      url,
       domain,
     })
     .where(eq(links.id, id))
