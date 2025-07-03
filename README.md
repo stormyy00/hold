@@ -1,6 +1,13 @@
+# Hold
+
+Hold is designed help users quickly save, organize, and track links for later use. Inspired by the frustration of losing links in Discord threads, Hold provides a clean and intuitive interface for managing your most important resources in one place.
+
+### Built With
+
 ![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23407ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![React Query](https://img.shields.io/badge/React%20Query-FF4154?logo=reactquery&logoColor=fff&style=for-the-badge)
 ![Drizzle](https://img.shields.io/badge/Drizzle-C5F74F?logo=drizzle&logoColor=000&style=for-the-badge)
 <br/>
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
@@ -8,7 +15,13 @@
 ![ESLint](https://img.shields.io/badge/ESLint-4B3263?style=for-the-badge&logo=eslint&logoColor=white)
 ![Prettier](https://img.shields.io/badge/prettier-1A2C34?style=for-the-badge&logo=prettier&logoColor=F7BA3E)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### Required Environment Variables
+
+1. `DATABASE_URL`
+2. `BETTER_AUTH_SECRET`
+3. `BETTER_AUTH_URL`
+4. `GOOGLE_CLIENT_ID`
+5. `GOOGLE_CLIENT_SECRET`
 
 ## Getting Started
 

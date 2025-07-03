@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Plus, Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { AddLink } from "@/server/queries/getLinks";
+import { LinkProps } from "@/types";
 
 interface LinkItem {
   title: string;
@@ -55,7 +56,25 @@ const FolderToolbar = ({
       const domain = url.hostname.replace(/^www\./, "");
       const description = "";
 
-      await AddLink(title, description, link, domain, folderId);
+      const { result } = await AddLink(
+        title,
+        description,
+        link,
+        domain,
+        folderId,
+      );
+
+      const newItem: LinkProps = {
+        id: result[0].id,
+        title,
+        link,
+        description,
+        domain,
+        openedCount: 0,
+      };
+
+      const updatedData = [...data, newItem];
+      setSearch(updatedData);
       setSearchValue("");
     } catch (error) {
       console.error("Error adding link:", error);

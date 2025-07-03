@@ -36,6 +36,6 @@ export interface CardsProps {
   onDelete: (id: string) => void;
   editableCard?: EditableCardType | null;
   onSave: (id: string | null, title?: string, link?: string) => void;
-  onUpdateLinkCount: (id: string, count: number) => void;
+  onUpdateLinkCount: (id: string) => void;
   onMoveToFolder?: (id: string, folderId: string) => void;
 }

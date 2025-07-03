@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 
 const Navigation = () => {
   const { data: session } = authClient.useSession();
-  console.log("Session data:", session);
 
   const router = useRouter();
 

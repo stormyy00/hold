@@ -3,7 +3,7 @@
 import { authenticate } from "@/utils/auth";
 import { db } from "../db";
 import { links } from "../db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 
 // POST
 export const AddLink = async (
@@ -52,18 +52,15 @@ export const AddLink = async (
 export const GetLinks = async () => {
   const { uid, message, auth } = await authenticate();
   if (auth !== 200 || !uid) {
-    return {
-      message: `Authentication Error: ${message}`,
-      status: auth,
-    };
+    throw new Error(`Authentication Error: ${message}`);
   }
-  console.time("GetLinks");
+
   const result = await db
     .select()
     .from(links)
     .where(eq(links.userId, uid))
+    .orderBy(asc(links.createdAt))
     .execute();
-  console.timeEnd("GetLinks");
 
   return {
     message: "Links retrieved",
