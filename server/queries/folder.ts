@@ -4,6 +4,7 @@ import { authenticate } from "@/utils/auth";
 import { db } from "../db";
 import { folders, links } from "../db/schema";
 import { and, eq } from "drizzle-orm";
+import { console } from "inspector";
 
 export const AddFolder = async (name: string) => {
   const { uid, message, auth } = await authenticate();
@@ -97,6 +98,7 @@ export const moveLinkToFolder = async (linkId: string, folderId: string) => {
       status: auth,
     };
   }
+  console.log("Moving link to folder", linkId, folderId);
   await db
     .update(links)
     .set({ folderId })
@@ -120,11 +122,10 @@ export const updateFolder = async (id: string, name: string) => {
     .update(folders)
     .set({ name })
     .where(and(eq(folders.id, id), eq(folders.userId, uid)))
-    .returning();
+    .execute();
   return {
     message: "Folder updated",
     status: 200,
-    result,
   };
 };
 
@@ -136,13 +137,19 @@ export const deleteFolder = async (id: string) => {
       status: auth,
     };
   }
-  const result = await db
+
+  await db
+    .update(links)
+    .set({ folderId: null })
+    .where(and(eq(links.folderId, id), eq(links.userId, uid)))
+    .execute();
+  await db
     .delete(folders)
     .where(and(eq(folders.id, id), eq(folders.userId, uid)))
-    .returning();
+    .execute();
+
   return {
     message: "Folder deleted",
     status: 200,
-    result,
   };
 };

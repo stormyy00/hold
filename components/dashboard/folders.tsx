@@ -1,7 +1,6 @@
 import { Edit, Folder as Fold, MoreVertical, Trash } from "lucide-react";
 import { Card } from "../ui/card";
-import { deleteFolder, updateFolder } from "@/server/queries/folder";
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 import { Input } from "../ui/input";
 import {
   DropdownMenu,
@@ -12,17 +11,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { useRouter } from "next/navigation";
-
-interface Folder {
-  id: string;
-  name: string;
-  [key: string]: string | number | boolean | object | undefined;
-}
+import {
+  useDeleteFolderMutation,
+  useUpdateFolderMutation,
+} from "@/server/actions/folders";
 
 type FolderProps = {
   id: string;
   title: string;
-  setFolder: Dispatch<SetStateAction<Folder[]>>;
 };
 const slugify = (text: string): string => {
   return text
@@ -36,10 +32,12 @@ const slugify = (text: string): string => {
     .toLowerCase();
 };
 
-const Folders = ({ id, title, setFolder }: FolderProps) => {
+const Folders = ({ id, title }: FolderProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(title);
   const router = useRouter();
+  const { mutate: deleteFolder } = useDeleteFolderMutation();
+  const { mutate: updateFolder } = useUpdateFolderMutation();
 
   return (
     <Card
@@ -55,15 +53,7 @@ const Folders = ({ id, title, setFolder }: FolderProps) => {
             onChange={(e) => setName(e.target.value)}
             onBlur={async () => {
               setIsEditing(false);
-              await updateFolder(id, name);
-              setFolder((prev) =>
-                prev.map((item) => {
-                  if (item.id === id) {
-                    return { ...item, name: name };
-                  }
-                  return item;
-                }),
-              );
+              updateFolder({ id, name });
             }}
             className="border-red-200 focus:ring-red-400 focus:border-red-400 text-sm font-semibold"
             onClick={(e) => e.stopPropagation()}
@@ -105,8 +95,7 @@ const Folders = ({ id, title, setFolder }: FolderProps) => {
                 <DropdownMenuItem
                   onClick={async (e) => {
                     e.stopPropagation();
-                    await deleteFolder(id);
-                    setFolder((prev) => prev.filter((item) => item.id !== id));
+                    deleteFolder(id);
                   }}
                   className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 rounded-md cursor-pointer transition-colors duration-200 outline-none"
                 >

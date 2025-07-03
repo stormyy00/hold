@@ -4,22 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import Card from "./card";
 import Toolbar from "./toolbar";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-
-import { LinkProps } from "@/types";
 import Folders from "./folders";
-import { getFolders, moveLinkToFolder } from "@/server/queries/folder";
 import { Grid2x2Icon, Link } from "lucide-react";
 import Breadcrumbs from "../breadcrumb";
 import { COLUMNS } from "@/data/columns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import LinkTable from "./table";
-import { useLinks } from "@/server/actions/links";
+import { useFolders, useLinks } from "@/server/actions/links";
 import {
   useAddLinkMutation,
   useDeleteLinkMutation,
   useUpdateCountMutation,
   useUpdateLinkMutation,
 } from "@/server/actions/add";
+import { useMoveLinkToFolderMutation } from "@/server/actions/folders";
 
 interface FolderProps {
   id: string;
@@ -39,7 +37,6 @@ interface EditableCardState {
 
 const Dashboard = () => {
   const [searchValue, setSearch] = useState("");
-  const [folders, setFolders] = useState<FolderProps[]>([]);
   const [filter, setFilter] = useState("all");
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [editableCard, setEditableCard] = useState<EditableCardState | null>(
@@ -48,12 +45,12 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const { data: linksData, isLoading: isLinksLoading } = useLinks();
-  // const { data: foldersData, isLoading: isFoldersLoading } = useFolders();
+  const { data: folders, isLoading: isFoldersLoading } = useFolders();
   const { mutate: addLink } = useAddLinkMutation();
   const { mutate: updateCount } = useUpdateCountMutation();
   const { mutate: updateLink } = useUpdateLinkMutation();
   const { mutate: deleteLink } = useDeleteLinkMutation();
-
+  const { mutate: moveLinkToFolder } = useMoveLinkToFolderMutation();
   const searchableItems = useMemo(() => {
     if (!searchValue.trim()) return linksData;
 
@@ -70,15 +67,20 @@ const Dashboard = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  useEffect(() => {
-    initializeData();
-  }, []);
+  // useEffect(() => {
+  //   if (foldersdata) {
+  //     setFolders(foldersdata);
+  //   }
+  // }, [foldersdata]);
+  // useEffect(() => {
+  //   initializeData();
+  // }, []);
 
-  const initializeData = async () => {
-    setIsLoading(true);
-    await Promise.all([fetchFolders()]);
-    setIsLoading(false);
-  };
+  // const initializeData = async () => {
+  //   setIsLoading(true);
+  //   await Promise.all([fetchFolders()]);
+  //   setIsLoading(false);
+  // };
 
   // const getLinks = async () => {
   //   try {
@@ -95,19 +97,19 @@ const Dashboard = () => {
   //   }
   // };
 
-  const fetchFolders = async () => {
-    try {
-      const { result, status, message } = await getFolders();
-      if (status === 200 && result) {
-        console.log("Folders retrieved successfully:", result);
-        setFolders(result);
-      } else {
-        console.error("Error retrieving folders:", message);
-      }
-    } catch (error) {
-      console.error("Failed to fetch folders:", error);
-    }
-  };
+  // const fetchFolders = async () => {
+  //   try {
+  //     const { result, status, message } = await getFolders();
+  //     if (status === 200 && result) {
+  //       console.log("Folders retrieved successfully:", result);
+  //       setFolders(result);
+  //     } else {
+  //       console.error("Error retrieving folders:", message);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch folders:", error);
+  //   }
+  // };
 
   // const addLink = async ({ title, link }: { title: string; link: string }) => {
   //   try {
@@ -220,7 +222,7 @@ const Dashboard = () => {
     }));
   };
 
-  if (isLinksLoading) {
+  if (isLinksLoading || isFoldersLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
         <div className="text-center bg-white/95 backdrop-blur-md border border-red-200/50 rounded-xl shadow-lg shadow-red-100/30 p-8">
@@ -246,9 +248,6 @@ const Dashboard = () => {
           <Toolbar
             searchValue={searchValue}
             onSearchChange={(val) => setSearch(val)}
-            setFolder={setFolders}
-            filter={filter}
-            setFilter={setFilter}
             onAddLink={({ title, link }) => addLink({ title, link })}
           />
         </div>
@@ -265,12 +264,7 @@ const Dashboard = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               {folders.map(({ id, name }, index) => (
-                <Folders
-                  key={index}
-                  id={id}
-                  title={name}
-                  setFolder={setFolders}
-                />
+                <Folders key={index} id={id} title={name} />
               ))}
             </div>
           </div>
@@ -349,16 +343,8 @@ const Dashboard = () => {
                         onUpdateLinkCount={(id: string) => {
                           updateCount({ id });
                         }}
-                        onMoveToFolder={async (
-                          id: string,
-                          folderId: string,
-                        ) => {
-                          await moveLinkToFolder(id, folderId);
-                          const updatedData = data.map((link) =>
-                            link.id === id ? { ...link, folderId } : link,
-                          );
-                          setData(updatedData);
-                          setSearch(updatedData);
+                        onMoveToFolder={(id, folderId) => {
+                          moveLinkToFolder({ linkId: id, folderId });
                         }}
                       />
                     ),

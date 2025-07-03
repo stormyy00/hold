@@ -6,22 +6,15 @@ import DialogBox from "./dialog";
 import { AddFolder } from "@/server/queries/folder";
 import FolderDialog from "./folderDialog";
 import { folderProps, LinkProps } from "@/types";
+import { useAddFolderMutation } from "@/server/actions/folders";
 
 interface ToolbarProps {
-  data: LinkProps[];
-  setSearch: (value: LinkProps[]) => void;
-  setFolder: (value: folderProps[]) => void;
-  filter: string;
-  setFilter: (value: string) => void;
+  searchValue: string;
+  onSearchChange: (value: string) => void;
   onAddLink: (value: { link: string; title: string }) => void;
 }
 
-const Toolbar = ({
-  searchValue,
-  onSearchChange,
-  setFolder,
-  onAddLink,
-}: ToolbarProps) => {
+const Toolbar = ({ searchValue, onSearchChange, onAddLink }: ToolbarProps) => {
   const [showDialog, setShowDialog] = useState(false);
   const [popup, setPopup] = useState({
     title: "",
@@ -30,6 +23,8 @@ const Toolbar = ({
     visible: false,
     button: "",
   });
+
+  const { mutate: addFolder } = useAddFolderMutation();
   // const handleStatus = (status: string) => {
   //   setFilter(status);
   //   setSearch(
@@ -38,16 +33,6 @@ const Toolbar = ({
   //       : data.filter((item) => item.status.toLowerCase() === status),
   //   );
   // };
-
-  const createFolder = async (folderName: string) => {
-    const { status, message } = await AddFolder(folderName);
-    if (status === 200) {
-      console.log("Folder created successfully:", message);
-      setFolder((prev) => [...prev, { name: folderName }]);
-    } else {
-      console.error(message);
-    }
-  };
 
   const confirmFolder = () => {
     setPopup({
@@ -99,7 +84,11 @@ const Toolbar = ({
         }}
       />
 
-      <FolderDialog popup={popup} setPopup={setPopup} onCreate={createFolder} />
+      <FolderDialog
+        popup={popup}
+        setPopup={setPopup}
+        onCreate={(folderName) => addFolder(folderName)}
+      />
     </div>
   );
 };

@@ -5,7 +5,6 @@ import {
   updateLink,
   updateLinkCount,
 } from "../queries/getLinks";
-import { AddFolder } from "../queries/folder";
 
 export const useAddLinkMutation = () => {
   const client = useQueryClient();
@@ -44,22 +43,6 @@ export const useUpdateCountMutation = () => {
     },
     onError: (error) => {
       console.error("Failed to update link count:", error);
-    },
-  });
-};
-
-export const useAddFolderMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (name: string) => {
-      return await AddFolder(name);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] });
-    },
-    onError: (error) => {
-      console.error("Error adding folder:", error);
     },
   });
 };
