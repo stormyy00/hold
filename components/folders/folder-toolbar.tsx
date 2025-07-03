@@ -23,7 +23,7 @@ const FolderToolbar = ({
   // setFilter,
 }: toolbarProps) => {
   const [showDialog, setShowDialog] = useState(false);
-  const { mutate: addLink } = useAddLinkMutation();
+  const { mutate: addLink, isPending: isLinkPending } = useAddLinkMutation();
   // const handleStatus = (status: string) => {
   //   setFilter(status);
   //   setSearch(
@@ -113,6 +113,7 @@ const FolderToolbar = ({
           addLink({ title, link, folderId });
           setShowDialog(false);
         }}
+        isPending={isLinkPending}
       />
     </div>
   );

@@ -5,14 +5,14 @@ import { Button } from "../ui/button";
 import DialogBox from "./dialog";
 import FolderDialog from "./folderDialog";
 import { useAddFolderMutation } from "@/server/actions/folders";
+import { useAddLinkMutation } from "@/server/actions/add";
 
 interface ToolbarProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
-  onAddLink: (value: { link: string; title: string }) => void;
 }
 
-const Toolbar = ({ searchValue, onSearchChange, onAddLink }: ToolbarProps) => {
+const Toolbar = ({ searchValue, onSearchChange }: ToolbarProps) => {
   const [showDialog, setShowDialog] = useState(false);
   const [popup, setPopup] = useState({
     title: "",
@@ -22,7 +22,9 @@ const Toolbar = ({ searchValue, onSearchChange, onAddLink }: ToolbarProps) => {
     button: "",
   });
 
-  const { mutate: addFolder } = useAddFolderMutation();
+  const { mutate: addFolder, isPending: isFolderPending } =
+    useAddFolderMutation();
+  const { mutate: addLink, isPending: isLinkPending } = useAddLinkMutation();
   // const handleStatus = (status: string) => {
   //   setFilter(status);
   //   setSearch(
@@ -77,15 +79,17 @@ const Toolbar = ({ searchValue, onSearchChange, onAddLink }: ToolbarProps) => {
         open={showDialog}
         onClose={() => setShowDialog(false)}
         onAdd={(title: string, link: string) => {
-          onAddLink({ title, link });
+          addLink({ title, link });
           setShowDialog(false);
         }}
+        isPending={isLinkPending}
       />
 
       <FolderDialog
         popup={popup}
         setPopup={setPopup}
         onCreate={(folderName) => addFolder(folderName)}
+        isPending={isFolderPending}
       />
     </div>
   );

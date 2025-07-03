@@ -12,13 +12,13 @@ export type folderProps = {
   id: string;
   name: string;
   userId: string;
-  createdAt: string;
+  createdAt: Date;
 };
 
 export type EditableCardType = {
   id: string;
   title: string;
-  link: string;
+  url: string;
 };
 
 export interface CardsProps {
@@ -35,7 +35,7 @@ export interface CardsProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   editableCard?: EditableCardType | null;
-  onSave: (id: string | null, title?: string, link?: string) => void;
+  onSave: (id: string | null, title?: string, url?: string) => void;
   onUpdateLinkCount: (id: string) => void;
   onMoveToFolder?: (id: string, folderId: string) => void;
 }

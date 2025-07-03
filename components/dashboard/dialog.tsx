@@ -14,10 +14,11 @@ import { DialogDescription } from "@radix-ui/react-dialog";
 type DialogBoxProps = {
   open: boolean;
   onClose: () => void;
-  onAdd: (title: string, link: string) => void;
+  onAdd: (title: string, url: string) => void;
+  isPending: boolean;
 };
 
-const DialogBox = ({ open, onClose, onAdd }: DialogBoxProps) => {
+const DialogBox = ({ open, onClose, onAdd, isPending }: DialogBoxProps) => {
   const [title, setTitle] = useState("");
   const [link, setLink] = useState("");
   const [error, setError] = useState("");
@@ -73,6 +74,7 @@ const DialogBox = ({ open, onClose, onAdd }: DialogBoxProps) => {
           <Button
             variant="outline"
             className="text-green-600 border-green-600"
+            disabled={isPending}
             onClick={() => {
               if (!title.trim() || !link.trim()) {
                 setError("Please fill in both title and link.");

@@ -57,7 +57,6 @@ const Dashboard = () => {
 
   const { data: linksData, isLoading: isLinksLoading } = useLinks();
   const { data: folders, isLoading: isFoldersLoading } = useFolders();
-  const { mutate: addLink } = useAddLinkMutation();
   const { mutate: updateCount } = useUpdateCountMutation();
   const { mutate: updateLink } = useUpdateLinkMutation();
   const { mutate: deleteLink } = useDeleteLinkMutation();
@@ -260,7 +259,6 @@ const Dashboard = () => {
           <Toolbar
             searchValue={searchValue}
             onSearchChange={(val) => setSearch(val)}
-            onAddLink={({ title, link }) => addLink({ title, link })}
           />
         </div>
 

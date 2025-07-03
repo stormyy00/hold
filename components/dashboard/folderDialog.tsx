@@ -15,14 +15,23 @@ import { useState } from "react";
 
 interface FolderDialogProps {
   popup: {
+    title: string;
+    text: string;
+    color: string;
     visible: boolean;
     button: string;
   };
   setPopup: (popup: { visible: boolean; button?: string }) => void;
   onCreate: (folderName: string) => void;
+  isPending?: boolean;
 }
 
-const FolderDialog = ({ popup, setPopup, onCreate }: FolderDialogProps) => {
+const FolderDialog = ({
+  popup,
+  setPopup,
+  onCreate,
+  isPending,
+}: FolderDialogProps) => {
   const [folderName, setFolderName] = useState("");
   return (
     <AlertDialog open={popup.visible}>
@@ -51,6 +60,7 @@ const FolderDialog = ({ popup, setPopup, onCreate }: FolderDialogProps) => {
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
+            disabled={isPending || !folderName.trim()}
             onClick={() => {
               onCreate(folderName);
               setPopup({ ...popup, visible: false });
