@@ -17,14 +17,11 @@ interface ToolbarProps {
 }
 
 const Toolbar = ({
-  data,
-  setSearch,
+  searchValue,
+  onSearchChange,
   setFolder,
-  filter,
-  setFilter,
   onAddLink,
 }: ToolbarProps) => {
-  const [searchValue, setSearchValue] = useState("");
   const [showDialog, setShowDialog] = useState(false);
   const [popup, setPopup] = useState({
     title: "",
@@ -33,29 +30,14 @@ const Toolbar = ({
     visible: false,
     button: "",
   });
-  const handleStatus = (status: string) => {
-    setFilter(status);
-    setSearch(
-      status === "all"
-        ? data
-        : data.filter((item) => item.status.toLowerCase() === status),
-    );
-  };
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchValue(val);
-    const filtered = val
-      ? data.filter(({ title }) =>
-          title.toLowerCase().includes(val.toLowerCase()),
-        )
-      : data;
-    setSearch(
-      filter === "all"
-        ? filtered
-        : filtered.filter((item) => item.status.toLowerCase() === filter),
-    );
-  };
+  // const handleStatus = (status: string) => {
+  //   setFilter(status);
+  //   setSearch(
+  //     status === "all"
+  //       ? data
+  //       : data.filter((item) => item.status.toLowerCase() === status),
+  //   );
+  // };
 
   const createFolder = async (folderName: string) => {
     const { status, message } = await AddFolder(folderName);
@@ -85,7 +67,7 @@ const Toolbar = ({
         </div>
         <Input
           value={searchValue}
-          onChange={handleSearch}
+          onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search links..."
           className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 text-sm"
         />
@@ -101,7 +83,7 @@ const Toolbar = ({
         {STATUSES.map(({ status, bg, text, border, label }) => (
           <button
             key={status}
-            onClick={() => handleStatus(status)}
+            // onClick={() => handleStatus(status)}
             className={`px-3 py-1.5 rounded-sm text-xs font-medium shadow-sm transform hover:-rotate-1 transition-all duration-200 border ${bg} ${text} ${border}`}
           >
             {label}

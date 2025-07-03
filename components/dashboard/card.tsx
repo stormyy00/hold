@@ -88,7 +88,7 @@ const Cards = ({
             ) : (
               <Link
                 href={link}
-                onClick={() => onUpdateLinkCount(id, openedCount)}
+                onClick={() => onUpdateLinkCount(id)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm font-semibold text-gray-800 truncate flex-grow min-w-0 hover:text-red-600 transition-colors duration-200"
