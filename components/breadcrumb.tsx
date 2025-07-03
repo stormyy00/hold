@@ -26,6 +26,7 @@ type Folder = {
 type BreadcrumbsProps = {
   folders: Folder[];
   page?: string;
+  folderId?: number | string | null;
   showDropdown?: boolean;
 };
 
@@ -45,7 +46,7 @@ const Breadcrumbs = ({
 
     const numericFolderId = parseInt(folderId, 10);
     folderName =
-      folders.find((f) => f.id === numericFolderId || f.id === folderId)
+      folders?.find((f) => f.id === numericFolderId || f.id === folderId)
         ?.name || "Folder";
   }
 

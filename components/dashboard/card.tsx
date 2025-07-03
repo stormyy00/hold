@@ -15,7 +15,7 @@ import {
 const Cards = ({
   id,
   title,
-  link,
+  url,
   domain,
   openedCount,
   folderName,
@@ -31,19 +31,19 @@ const Cards = ({
   onMoveToFolder,
 }: CardsProps) => {
   const [editTitle, setEditTitle] = useState(title);
-  const [editLink, setEditLink] = useState(link);
+  const [editLink, setEditLink] = useState(url);
 
   const isEditing = editableCard && editableCard.id === id;
 
   useEffect(() => {
     if (isEditing && editableCard) {
       setEditTitle(editableCard.title);
-      setEditLink(editableCard.link);
+      setEditLink(url);
     } else {
       setEditTitle(title);
-      setEditLink(link);
+      setEditLink(url);
     }
-  }, [isEditing, editableCard, title, link]);
+  }, [isEditing, editableCard, title, url]);
 
   return (
     <Card
@@ -69,7 +69,7 @@ const Cards = ({
       <CardHeader className="flex items-center justify-between p-0 pb-3">
         <div className="flex gap-3 justify-between w-full items-center">
           <div className="flex items-center gap-3 flex-grow min-w-0">
-            {link && (
+            {url && (
               <div className="w-6 h-6 flex-shrink-0 rounded-md overflow-hidden shadow-sm bg-gray-50 flex items-center justify-center">
                 <img
                   src={`https://www.google.com/s2/favicons?domain=${domain}&size=32`}
@@ -87,7 +87,7 @@ const Cards = ({
               />
             ) : (
               <Link
-                href={link}
+                href={url}
                 onClick={() => onUpdateLinkCount(id)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -116,7 +116,7 @@ const Cards = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     setEditTitle(title);
-                    setEditLink(link);
+                    setEditLink(url);
                     onSave(null);
                   }}
                   className="bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-700 text-xs px-3 py-1.5 rounded-lg border-gray-200 shadow-sm"

@@ -3,9 +3,7 @@ import { FolderPlus, Plus, Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import DialogBox from "./dialog";
-import { AddFolder } from "@/server/queries/folder";
 import FolderDialog from "./folderDialog";
-import { folderProps, LinkProps } from "@/types";
 import { useAddFolderMutation } from "@/server/actions/folders";
 
 interface ToolbarProps {

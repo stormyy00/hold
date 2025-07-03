@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import FolderToolbar from "./folder-toolbar";
 import FolderCard from "./folder-card";
-import {
-  deleteLink,
-  updateLink,
-  updateLinkCount,
-} from "@/server/queries/getLinks";
 import { Link } from "lucide-react";
 import Breadcrumbs from "../breadcrumb";
+import { useFolders, useLinks } from "@/server/actions/links";
+import {
+  useDeleteLinkMutation,
+  useUpdateCountMutation,
+  useUpdateLinkMutation,
+} from "@/server/actions/add";
 
 type LinkItem = {
   id: string;
@@ -20,20 +21,22 @@ type LinkItem = {
 };
 
 type FolderDashboardProps = {
-  content: LinkItem[];
-  title: string;
   folderId: string;
-  folders: { id: string; name: string }[];
 };
 
-const FolderDashboard = ({
-  content,
-  title,
-  folderId,
-  folders,
-}: FolderDashboardProps) => {
-  const [data, setData] = useState(content);
-  const [search, setSearch] = useState(content);
+function useDebouncedValue<T>(value: T, delay) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debounced;
+}
+
+const FolderDashboard = ({ folderId }: FolderDashboardProps) => {
+  const [search, setSearch] = useState("");
   const [checked, setChecked] = useState<{ [id: string]: boolean }>({});
   const [editableCard, setEditableCard] = useState<null | {
     id: string;
@@ -41,58 +44,76 @@ const FolderDashboard = ({
     link: string;
   }>(null);
 
+  const { data: links, isLoading: isLinksLoading } = useLinks(folderId);
+  const { data: folders, isLoading: isFoldersLoading } = useFolders();
+  const { mutate: updateLink } = useUpdateLinkMutation();
+  const { mutate: updateCount } = useUpdateCountMutation();
+  const { mutate: deleteLink } = useDeleteLinkMutation();
+
+  const currentFolderName = folders?.find(
+    (folder) => folder.id === folderId,
+  )?.name;
+
+  const searchableItems = useMemo(() => {
+    if (!search.trim()) return links;
+
+    return links.filter(({ title, url }) =>
+      [title, url].some((field) =>
+        field.toLowerCase().includes(search.toLowerCase()),
+      ),
+    );
+  }, [search, links]);
+
+  console.log("Searchable items:", searchableItems);
+
   const onSave = async (id: string | null, title?: string, link?: string) => {
     if (id === null) {
       setEditableCard(null);
       return;
     }
+
     if (!title?.trim() || !link?.trim()) {
       console.error("Title and link are required");
       return;
     }
-    try {
-      const updatedDomain = new URL(link).hostname.replace(/^www\./, "");
-      const { status, message } = await updateLink(
-        id,
-        title.trim(),
-        "",
-        link.trim(),
-        updatedDomain,
-      );
-      if (status === 200) {
-        const updatedData = data.map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                title: title.trim(),
-                url: link.trim(),
-                domain: updatedDomain,
-              }
-            : item,
-        );
-        setData(updatedData);
-        setSearch(updatedData);
-        setEditableCard(null);
-      } else {
-        console.error("Failed to update link:", message);
-      }
-    } catch (error) {
-      console.error("Error updating link:", error);
-    }
+
+    updateLink(
+      { id, title: title.trim(), link: link.trim() },
+      {
+        onSuccess: () => {
+          setEditableCard(null);
+        },
+      },
+    );
   };
+
+  if (isLinksLoading || isFoldersLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
+        <div className="text-center bg-white/95 backdrop-blur-md border border-red-200/50 rounded-xl shadow-lg shadow-red-100/30 p-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4" />
+          <div className="text-lg font-semibold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
+            Loading...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto p-6">
-        <Breadcrumbs folders={folders} page={title} showDropdown />
-        <div className="mb-8">
-          <div className="text-3xl font-bold text-gray-900 mb-2">{title}</div>
+      <div className="max-w-7xl mx-auto p-4">
+        <Breadcrumbs folders={folders} page={currentFolderName} showDropdown />
+        <div className="mt-2 mb-4">
+          <div className="text-3xl font-bold text-gray-900 mb-2">
+            {currentFolderName}
+          </div>
         </div>
 
-        <div className="mb-8 bg-white/95 backdrop-blur-md border border-red-200/50 rounded-xl shadow-lg shadow-red-100/30 p-6">
+        <div className=" mb-8 bg-white/95 backdrop-blur-md border border-red-200/50 rounded-xl shadow-lg shadow-red-100/30 p-6">
           <FolderToolbar
-            data={data}
-            setSearch={setSearch}
+            search={search}
+            onChangeSearch={(val) => setSearch(val)}
             folderId={folderId}
             // filter={filter}
             // setFilter={setFilter}
@@ -110,13 +131,13 @@ const FolderDashboard = ({
               </span>
             )}
             <span className="text-gray-600 bg-gradient-to-r from-red-50 to-red-100 px-3 py-1 rounded-lg border border-red-200/60">
-              {search.length} link
-              {search.length !== 1 ? "s" : ""}
+              {searchableItems.length} link
+              {searchableItems.length !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
 
-        {search.length === 0 ? (
+        {searchableItems.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-2">
               <Link size={48} className="mx-auto" />
@@ -128,7 +149,7 @@ const FolderDashboard = ({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {search.map(({ id, title, url, domain, openedCount }) => (
+            {searchableItems.map(({ id, title, url, domain, openedCount }) => (
               <FolderCard
                 key={id}
                 id={id}
@@ -145,15 +166,11 @@ const FolderDashboard = ({
                   }))
                 }
                 onSave={onSave}
-                onDelete={async () => {
-                  await deleteLink(id);
-                  setData((prev) => prev.filter((folder) => folder.id !== id));
-                  setSearch((prev) =>
-                    prev.filter((folder) => folder.id !== id),
-                  );
+                onDelete={() => {
+                  deleteLink(id);
                 }}
                 onEdit={(editId: string) => {
-                  const cardToEdit = data.find((item) => item.id === editId);
+                  const cardToEdit = links.find((item) => item.id === editId);
                   if (cardToEdit) {
                     setEditableCard({
                       id: editId,
@@ -162,16 +179,7 @@ const FolderDashboard = ({
                     });
                   }
                 }}
-                onUpdateLinkCount={async (linkId: string, count: number) => {
-                  await updateLinkCount(linkId);
-                  setData((prev) =>
-                    prev.map((folder) =>
-                      folder.id === linkId
-                        ? { ...folder, openedCount: count }
-                        : folder,
-                    ),
-                  );
-                }}
+                onUpdateLinkCount={(id: string) => updateCount({ id })}
               />
             ))}
           </div>

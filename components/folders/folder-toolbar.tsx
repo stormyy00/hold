@@ -3,8 +3,7 @@ import DialogBox from "../dashboard/dialog";
 import { Button } from "../ui/button";
 import { Plus, Search } from "lucide-react";
 import { Input } from "../ui/input";
-import { AddLink } from "@/server/queries/getLinks";
-import { LinkProps } from "@/types";
+import { useAddLinkMutation } from "@/server/actions/add";
 
 interface LinkItem {
   title: string;
@@ -12,20 +11,19 @@ interface LinkItem {
 }
 
 type toolbarProps = {
-  data: LinkItem[];
-  setSearch: React.Dispatch<React.SetStateAction<LinkItem[]>>;
+  search: string;
+  onChangeSearch: (value: string) => void;
   folderId: string;
 };
 const FolderToolbar = ({
-  data,
-  setSearch,
+  search,
+  onChangeSearch,
   folderId,
   // filter,
   // setFilter,
 }: toolbarProps) => {
-  const [searchValue, setSearchValue] = useState("");
   const [showDialog, setShowDialog] = useState(false);
-
+  const { mutate: addLink } = useAddLinkMutation();
   // const handleStatus = (status: string) => {
   //   setFilter(status);
   //   setSearch(
@@ -35,51 +33,51 @@ const FolderToolbar = ({
   //   );
   // };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchValue(val);
-    const filtered = val
-      ? data.filter(({ title }) =>
-          title.toLowerCase().includes(val.toLowerCase()),
-        )
-      : data;
-    setSearch(filtered);
-  };
+  // const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const val = e.target.value;
+  //   setSearchValue(val);
+  //   const filtered = val
+  //     ? data.filter(({ title }) =>
+  //         title.toLowerCase().includes(val.toLowerCase()),
+  //       )
+  //     : data;
+  //   setSearch(filtered);
+  // };
 
-  const addLink = async ({ title, link }: { title: string; link: string }) => {
-    if (!title || !link) {
-      alert("Title and link cannot be empty");
-      return;
-    }
-    try {
-      const url = new URL(link);
-      const domain = url.hostname.replace(/^www\./, "");
-      const description = "";
+  // const addLink = async ({ title, link }: { title: string; link: string }) => {
+  //   if (!title || !link) {
+  //     alert("Title and link cannot be empty");
+  //     return;
+  //   }
+  //   try {
+  //     const url = new URL(link);
+  //     const domain = url.hostname.replace(/^www\./, "");
+  //     const description = "";
 
-      const { result } = await AddLink(
-        title,
-        description,
-        link,
-        domain,
-        folderId,
-      );
+  //     const { result } = await AddLink(
+  //       title,
+  //       description,
+  //       link,
+  //       domain,
+  //       folderId,
+  //     );
 
-      const newItem: LinkProps = {
-        id: result[0].id,
-        title,
-        link,
-        description,
-        domain,
-        openedCount: 0,
-      };
+  //     const newItem: LinkProps = {
+  //       id: result[0].id,
+  //       title,
+  //       link,
+  //       description,
+  //       domain,
+  //       openedCount: 0,
+  //     };
 
-      const updatedData = [...data, newItem];
-      setSearch(updatedData);
-      setSearchValue("");
-    } catch (error) {
-      console.error("Error adding link:", error);
-    }
-  };
+  //     const updatedData = [...data, newItem];
+  //     setSearch(updatedData);
+  //     setSearchValue("");
+  //   } catch (error) {
+  //     console.error("Error adding link:", error);
+  //   }
+  // };
 
   return (
     <div className="flex flex-row items-center gap-2 w-11/12">
@@ -88,8 +86,8 @@ const FolderToolbar = ({
           <Search size={16} className="text-gray-400" />
         </div>
         <Input
-          value={searchValue}
-          onChange={handleSearch}
+          value={search}
+          onChange={(e) => onChangeSearch(e.target.value)}
           placeholder="Search links..."
           className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-200 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 text-sm"
         />
@@ -112,7 +110,7 @@ const FolderToolbar = ({
         open={showDialog}
         onClose={() => setShowDialog(false)}
         onAdd={(title: string, link: string) => {
-          addLink({ title, link });
+          addLink({ title, link, folderId });
           setShowDialog(false);
         }}
       />

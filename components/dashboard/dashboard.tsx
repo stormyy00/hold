@@ -32,7 +32,18 @@ interface FolderProps {
 interface EditableCardState {
   id: string;
   title: string;
-  link: string;
+  url: string;
+}
+
+function useDebouncedValue<T>(value: T, delay) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debounced;
 }
 
 const Dashboard = () => {
@@ -51,15 +62,16 @@ const Dashboard = () => {
   const { mutate: updateLink } = useUpdateLinkMutation();
   const { mutate: deleteLink } = useDeleteLinkMutation();
   const { mutate: moveLinkToFolder } = useMoveLinkToFolderMutation();
-  const searchableItems = useMemo(() => {
-    if (!searchValue.trim()) return linksData;
+  const debouncedSearch = useDebouncedValue(searchValue, 200);
 
-    return linksData.filter(({ title, link }) =>
-      [title, link].some((field) =>
-        field.toLowerCase().includes(searchValue.toLowerCase()),
+  const searchableItems = useMemo(() => {
+    if (!debouncedSearch.trim()) return linksData;
+    return linksData.filter(({ title, url }) =>
+      [title, url].some((field) =>
+        field.toLowerCase().includes(debouncedSearch.toLowerCase()),
       ),
     );
-  }, [searchValue, linksData]);
+  }, [debouncedSearch, linksData]);
 
   const table = useReactTable({
     data: searchableItems,
@@ -189,12 +201,12 @@ const Dashboard = () => {
       setEditableCard({
         id,
         title: cardToEdit.title,
-        link: cardToEdit.link,
+        url: cardToEdit.url,
       });
     }
   };
 
-  const onSave = async (id: string | null, title?: string, link?: string) => {
+  const onSave = (id: string | null, title?: string, link?: string) => {
     if (id === null) {
       setEditableCard(null);
       return;
@@ -319,7 +331,7 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                   {searchableItems.map(
                     (
-                      { id, folderId, title, link, domain, openedCount },
+                      { id, folderId, title, url, domain, openedCount },
                       index,
                     ) => (
                       <Card
@@ -330,7 +342,7 @@ const Dashboard = () => {
                         }
                         folderId={folderId}
                         title={title}
-                        link={link}
+                        url={url}
                         domain={domain}
                         openedCount={openedCount}
                         onClick={() => handleCardCheck(id)}
