@@ -5,10 +5,10 @@ import Card from "./card";
 import Toolbar from "./toolbar";
 // import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import Folders from "./folders";
-import { Grid2x2Icon, Link } from "lucide-react";
+import { Link } from "lucide-react";
 import Breadcrumbs from "../breadcrumb";
 // import { COLUMNS } from "@/data/columns";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Tabs, TabsContent, TabsList } from "../ui/tabs";
 // import LinkTable from "./table";
 import { useFolders, useLinks } from "@/server/actions/links";
 import {
@@ -285,12 +285,12 @@ const Dashboard = () => {
               Links
             </div>
             <TabsList className="bg-white border border-gray-200/80 shadow-sm">
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="card"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-red-200/50 transition-all duration-200"
               >
                 <Grid2x2Icon size={16} />
-              </TabsTrigger>
+              </TabsTrigger> */}
               {/* <TabsTrigger
                 value="list"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-red-200/50 transition-all duration-200"
