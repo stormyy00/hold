@@ -2,7 +2,7 @@
 
 import { authenticate } from "@/utils/auth";
 import { db } from "../db";
-import { links } from "../db/schema";
+import { folders, links } from "../db/schema";
 import { and, asc, eq, sql } from "drizzle-orm";
 
 // POST
@@ -56,25 +56,36 @@ export const GetLinks = async () => {
   }
 
   const result = await db
-    .select()
+    .select({
+      id: links.id,
+      folderId: links.folderId,
+      folderName: folders.name,
+      title: links.title,
+      url: links.url,
+      domain: links.domain,
+      openedCount: links.openedCount,
+    })
     .from(links)
-    .where(eq(links.userId, uid))
-    .orderBy(asc(links.createdAt))
-    .execute();
+    .leftJoin(folders, eq(links.folderId, folders.id))
+    .where(and(eq(links.userId, uid)))
+    .orderBy(asc(links.createdAt));
 
   return {
     message: "Links retrieved",
     status: 200,
-    result: result.map(({ id, folderId, title, url, domain, openedCount }) => {
-      return {
-        id,
-        folderId,
-        title,
-        url,
-        domain,
-        openedCount,
-      };
-    }),
+    result: result.map(
+      ({ id, folderId, folderName, title, url, domain, openedCount }) => {
+        return {
+          id,
+          folderId,
+          folderName,
+          title,
+          url,
+          domain,
+          openedCount,
+        };
+      },
+    ),
   };
 };
 

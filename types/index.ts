@@ -2,7 +2,7 @@ export type LinkProps = {
   id: string;
   title: string;
   folderId?: string | null;
-  link: string;
+  url: string;
   description?: string;
   domain: string;
   openedCount: number;

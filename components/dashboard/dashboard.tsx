@@ -1,33 +1,48 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Card from "./card";
 import Toolbar from "./toolbar";
-// import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  getCoreRowModel,
+  getExpandedRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  RowSelectionState,
+  useReactTable,
+} from "@tanstack/react-table";
 import Folders from "./folders";
-import { Link } from "lucide-react";
+import { Edit, Grid2x2Icon, Link, Table } from "lucide-react";
 import Breadcrumbs from "../breadcrumb";
-// import { COLUMNS } from "@/data/columns";
-import { Tabs, TabsContent, TabsList } from "../ui/tabs";
-// import LinkTable from "./table";
+import { COLUMNS } from "@/data/columns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import LinkTable from "./table";
 import { useFolders, useLinks } from "@/server/actions/links";
 import {
-  useAddLinkMutation,
   useDeleteLinkMutation,
   useUpdateCountMutation,
   useUpdateLinkMutation,
 } from "@/server/actions/add";
 import { useMoveLinkToFolderMutation } from "@/server/actions/folders";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+} from "../ui/dialog";
 
-interface FolderProps {
-  id: string;
-  name: string;
-  link: string;
-  domain: string;
-  openedCount: number;
-  userId: string;
-  createdAt: string;
-}
+// interface FolderProps {
+//   id: string;
+//   name: string;
+//   link: string;
+//   domain: string;
+//   openedCount: number;
+//   userId: string;
+//   createdAt: string;
+// }
 
 interface EditableCardState {
   id: string;
@@ -48,12 +63,13 @@ function useDebouncedValue<T>(value: T, delay) {
 
 const Dashboard = () => {
   const [searchValue, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  // const [filter, setFilter] = useState("all");
+  const [selected, setSelected] = useState<RowSelectionState>({});
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [editableCard, setEditableCard] = useState<EditableCardState | null>(
     null,
   );
-  const [isLoading, setIsLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const { data: linksData, isLoading: isLinksLoading } = useLinks();
   const { data: folders, isLoading: isFoldersLoading } = useFolders();
@@ -72,11 +88,49 @@ const Dashboard = () => {
     );
   }, [debouncedSearch, linksData]);
 
-  // const table = useReactTable({
-  //   data: searchableItems,
-  //   columns: COLUMNS,
-  //   getCoreRowModel: getCoreRowModel(),
-  // });
+  const table = useReactTable({
+    data: searchableItems,
+    columns: COLUMNS,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getRowCanExpand: (_row) => true,
+    onRowSelectionChange: setSelected,
+    enableRowSelection: true,
+    state: {
+      rowSelection: selected,
+    },
+    meta: {
+      onEdit: (id: string) => {
+        const cardToEdit = linksData.find((item) => item.id === id);
+        if (cardToEdit) {
+          setEditableCard({
+            id,
+            title: cardToEdit.title,
+            url: cardToEdit.url,
+          });
+          setEditModalOpen(true);
+        }
+      },
+      onDelete: (id: string) => {
+        deleteLink(id);
+        const updatedChecked = { ...checked };
+        delete updatedChecked[id];
+        setChecked(updatedChecked);
+      },
+      onMoveToFolder: (id: string, folderId: string) => {
+        moveLinkToFolder({ linkId: id, folderId });
+        const updatedChecked = { ...checked };
+        delete updatedChecked[id];
+        setChecked(updatedChecked);
+      },
+      folders,
+      updateLinkCount: (id: string) => {
+        updateCount({ id });
+      },
+    },
+  });
 
   // useEffect(() => {
   //   if (foldersdata) {
@@ -205,26 +259,29 @@ const Dashboard = () => {
     }
   };
 
-  const onSave = (id: string | null, title?: string, link?: string) => {
-    if (id === null) {
-      setEditableCard(null);
-      return;
-    }
+  const onSave = useCallback(
+    (id: string | null, title?: string, link?: string) => {
+      if (id === null) {
+        setEditableCard(null);
+        return;
+      }
 
-    if (!title?.trim() || !link?.trim()) {
-      console.error("Title and link are required");
-      return;
-    }
+      if (!title?.trim() || !link?.trim()) {
+        console.error("Title and link are required");
+        return;
+      }
 
-    updateLink(
-      { id, title: title.trim(), link: link.trim() },
-      {
-        onSuccess: () => {
-          setEditableCard(null);
+      updateLink(
+        { id, title: title.trim(), link: link.trim() },
+        {
+          onSuccess: () => {
+            setEditableCard(null);
+          },
         },
-      },
-    );
-  };
+      );
+    },
+    [linksData, setEditableCard],
+  );
 
   const handleCardCheck = (id: string) => {
     setChecked((prev) => ({
@@ -265,7 +322,7 @@ const Dashboard = () => {
         {folders.length > 0 && (
           <div className="mb-12">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-semibold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
                 Folders
               </h2>
               <span className="text-sm text-gray-600 font-medium bg-gradient-to-r from-red-50 to-red-100 px-3 py-1 rounded-lg border border-red-200/60">
@@ -281,22 +338,22 @@ const Dashboard = () => {
         )}
         <Tabs defaultValue="card">
           <div className="flex items-center justify-between mb-6">
-            <div className="text-2xl font-semibold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
+            <div className="text-3xl font-semibold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
               Links
             </div>
             <TabsList className="bg-white border border-gray-200/80 shadow-sm">
-              {/* <TabsTrigger
+              <TabsTrigger
                 value="card"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-red-200/50 transition-all duration-200"
               >
-                <Grid2x2Icon size={16} />
-              </TabsTrigger> */}
-              {/* <TabsTrigger
+                <Grid2x2Icon size={20} />
+              </TabsTrigger>
+              <TabsTrigger
                 value="list"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-red-200/50 transition-all duration-200"
               >
-                <Table size={16} />
-              </TabsTrigger> */}
+                <Table size={20} />
+              </TabsTrigger>
             </TabsList>
             <div className="flex items-center gap-4 text-sm font-medium">
               {Object.values(checked).some(Boolean) && (
@@ -361,15 +418,33 @@ const Dashboard = () => {
                   )}
                 </div>
               </TabsContent>
-              {/* <TabsContent value="list">
+              <TabsContent value="list">
                 <LinkTable
                   table={table}
-                  isLoading={isLoading}
-                  emptyMessage="No links found. Add your first link to get started!"
+                  // isLoading={isLinksLoading}
+                  // onEdit={editCard}
+                  // onDelete={deleteCard}
+                  // onUpdateLinkCount={(id: string) => {
+                  //   updateCount({ id });
+                  // }}
+                  // onMoveToFolder={(id, folderId) => {
+                  //   moveLinkToFolder({ linkId: id, folderId });
+                  // }}
+                  // editableCard={editableCard}
+                  // onSave={onSave}
+                  // folders={folders}
+                  // setEditableCard={setEditableCard}
                 />
-              </TabsContent> */}
+              </TabsContent>
             </>
           )}
+          <Modal
+            open={editModalOpen}
+            editableCard={editableCard}
+            setEditableCard={setEditableCard}
+            onSave={onSave}
+            setEditModalOpen={setEditModalOpen}
+          />
         </Tabs>
       </div>
     </div>
@@ -377,3 +452,69 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+const Modal = ({
+  open,
+  editableCard,
+  setEditableCard,
+  onSave,
+  setEditModalOpen,
+}) => {
+  if (!editableCard) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={setEditModalOpen}>
+      <DialogContent className="bg-white p-6 rounded-lg w-full shadow-lg max-w-md mx-auto z-50">
+        <DialogHeader className="flex items-center gap-2 text-sm font-medium text-gray-700 border-b pb-2 mb-3">
+          <Edit size={16} />
+          <span>Edit Link</span>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label className="text-xs font-medium text-gray-600">Title</Label>
+            <Input
+              value={editableCard.title}
+              onChange={(e) =>
+                setEditableCard({ ...editableCard, title: e.target.value })
+              }
+              className="text-sm font-semibold border-blue-200 focus:ring-blue-400 focus:border-blue-400 block w-full rounded px-2 py-1 mt-1"
+              placeholder="Enter title"
+            />
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-gray-600">URL</Label>
+            <Input
+              value={editableCard.url}
+              onChange={(e) =>
+                setEditableCard({ ...editableCard, url: e.target.value })
+              }
+              placeholder="https://example.com"
+              className="text-sm border-blue-200 focus:ring-blue-400 focus:border-blue-400 block w-full rounded px-2 py-1 mt-1"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex items-center gap-2 pt-4 border-t mt-4">
+          <Button
+            onClick={() => {
+              onSave(editableCard.id, editableCard.title, editableCard.url);
+              setEditModalOpen(false);
+              setEditableCard(null);
+            }}
+            className="flex-1 bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 text-xs py-2 rounded-lg border-green-200 shadow-sm"
+          >
+            Save Changes
+          </Button>
+          <Button
+            onClick={() => {
+              setEditModalOpen(false);
+              setEditableCard(null);
+            }}
+            className="flex-1 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-700 text-xs py-2 rounded-lg border-gray-200 shadow-sm"
+          >
+            Cancel
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
